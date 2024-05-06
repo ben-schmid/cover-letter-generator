@@ -1,9 +1,9 @@
 from openai import OpenAI
 import fitz 
 
-API_KEY = ""
 
-client = OpenAI(api_key=API_KEY)
+
+client = OpenAI()
 
 def generate_cover_letter():
 
@@ -20,7 +20,7 @@ def generate_cover_letter():
 #print (generate_cover_letter())
 
 def read_file():
-    with fitz.open("C:/Users/Bensc/Documents/Side Projects/Coverletter-Maker/Cover-Letter-Generator/client/Ben_s_Resume_2.pdf") as doc:
+    with fitz.open("Ben_s_Resume_2.pdf") as doc:
         text = ""
         for page in doc:
             text += page.get_text()

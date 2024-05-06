@@ -18,6 +18,8 @@ flask-server/__pycache__/openai_api.cpython-312.pyc
 .env.development.local
 .env.test.local
 .env.production.local
+Ben_s_Resume_2.pdf
+.env
 
 npm-debug.log*
 yarn-debug.log*
