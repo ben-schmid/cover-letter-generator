@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { Button, Box, TextField, Stack, styled } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import Stack from '@mui/material/Stack';
-import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const format_message = (text) => {
@@ -30,35 +23,35 @@ const VisuallyHiddenInput = styled('input')({
   whiteSpace: 'nowrap',
   width: 1,
 });
-
-function uploadButton() {
-  return (
-    <Button
-      component="label"
-      role={undefined}
-      variant="contained"
-      tabIndex={-1}
-      startIcon={<CloudUploadIcon />}
-    >
-      Upload file
-      <VisuallyHiddenInput type="file" />
-    </Button>
-  );
-}
-
-export default function App() {
+function App() {
   const [message, setMessage] = useState("");
+  const [input, setInput] = useState("");
+  const[file, setFile] = useState(null);
 
-  useEffect(() => {
-    console.log("Fetching...");
-    fetch('/chat').then(
-      res => res.json()
-    ).then(
-      data => {
-        setMessage(data.message);
-        console.log(data);
-      });
-  }, []);
+
+  const handleInputChange = (event) => {
+    setInput(event.target.value);
+  };
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0])
+  }
+
+  const sendData = () => {
+    const formData = new FormData();
+    formData.append('message', input)
+    formData.append('file' , file);
+
+    fetch('/data', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      setMessage(data.coverLetter);
+      console.log(data);
+    })
+    .catch(error => console.error('Error:', error));
+  };
 
   return (
     <div className="app">
@@ -80,17 +73,30 @@ export default function App() {
             sx={{
               width: 1000,
               maxWidth: '100%',
-              color: 'white',
-              mb: 4
             }}
           >
             <Stack direction="row" spacing={2}>
               <TextField
-                fullWidth label="Message"
+                fullWidth
+                label="Message"
                 id="fullWidth"
-                fontColor="white"
+                value={input}
+                onChange={handleInputChange}
               />
-              <Button variant="contained" endIcon={<SendIcon />}>
+             <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload file
+          <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+        </Button>
+              <Button 
+                onClick={sendData} 
+                variant="contained" 
+                endIcon={<SendIcon />}>
                 Send
               </Button>
             </Stack>
@@ -100,3 +106,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
