@@ -23,23 +23,35 @@ const VisuallyHiddenInput = styled('input')({
   whiteSpace: 'nowrap',
   width: 1,
 });
+
+
 function App() {
   const [message, setMessage] = useState("");
   const [input, setInput] = useState("");
-  const[file, setFile] = useState(null);
+  const [file, setFile] = useState(null);
+  const [position, setPosition] = useState("")
+  const[comapny, setCompany] = useState("")
 
 
   const handleInputChange = (event) => {
-    setInput(event.target.value);
-  };
+    setInput(event.target.value)
+  }
   const handleFileChange = (event) => {
     setFile(event.target.files[0])
+  }
+  const handlePositionChange = (event) =>{
+    setPosition(event.target.value)
+  }
+  const handleCompanyChange = (event) =>{
+    setCompany(event.target.value)
   }
 
   const sendData = () => {
     const formData = new FormData();
     formData.append('message', input)
     formData.append('file' , file);
+    formData.append('company', comapny)
+    formData.append('position', position)
 
     fetch('/data', {
       method: 'POST',
@@ -70,17 +82,44 @@ function App() {
 
         <section className="bottom-section">
           <Box
+            component="form"
             sx={{
-              width: 1000,
-              maxWidth: '100%',
+              '& > :not(style)': { m: 1, width: '24ch' },
             }}
+            noValidate
+            autoComplete="off"
           >
+            <TextField 
+              id="company-name" 
+              label="Company Name" 
+              variant="outlined" 
+              onChange={handleCompanyChange}
+              />
+            <TextField 
+              id="position-name" 
+              label="Position" 
+              variant="outlined"
+              onChange={handlePositionChange}
+               />
+          </Box>
+
+
+          <Box
+            component="form"
+            sx={{
+              '& .MuiTextField-root': { m: 1, width: '50ch' },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            
             <Stack direction="row" spacing={2}>
               <TextField
-                fullWidth
-                label="Message"
-                id="fullWidth"
-                value={input}
+                id="job-description"
+                label="Job Description"
+                multiline
+                maxRows={4}
+                value = {input}
                 onChange={handleInputChange}
               />
              <Button
@@ -91,7 +130,7 @@ function App() {
               startIcon={<CloudUploadIcon />}
             >
               Upload file
-          <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+          <VisuallyHiddenInput type="file" accept="application/pdf" onChange={handleFileChange} />
         </Button>
               <Button 
                 onClick={sendData} 
