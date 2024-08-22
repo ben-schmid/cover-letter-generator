@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, TextField, Stack, styled } from '@mui/material';
+import { Button, Box, TextField, Stack, styled,  Menu, MenuItem} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
@@ -30,7 +30,22 @@ function App() {
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
   const [position, setPosition] = useState("")
-  const[comapny, setCompany] = useState("")
+  const[company, setCompany] = useState("")
+  const [sideButtons, setSideButtons] = useState([])
+  const [anchorEl, setAnchorEl] = useState(null)
+
+  useEffect(() => {
+    fetch("/initialize_coverletter_list")
+      .then(response => response.json())
+      .then(data => {
+        const buttons = data.map(item =>({
+          id: item._id,
+          company: item.company,
+          position: item.position,
+        }));
+        setSideButtons(buttons)
+      })
+  },[])
 
 
   const handleInputChange = (event) => {
@@ -50,7 +65,7 @@ function App() {
     const formData = new FormData();
     formData.append('message', input)
     formData.append('file' , file);
-    formData.append('company', comapny)
+    formData.append('company', company)
     formData.append('position', position)
 
     fetch('/data', {
@@ -60,24 +75,58 @@ function App() {
     .then(response => response.json())
     .then(data => {
       setMessage(data.coverLetter);
-      console.log(data);
+      setSideButtons(prevSideButtons => [
+        ...prevSideButtons,
+        { id: data._id, company: company, position: position }
+      ]);
     })
     .catch(error => console.error('Error:', error));
   };
 
+  const handleSideButtonClick = (sideButtonId) => {
+    fetch(`/previous_cl?id=${sideButtonId}`)
+      .then(response => response.json())
+      .then(data => {
+        setMessage(data.cover_letter);
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
+
+
   return (
     <div className="app">
       <section className="sidebar">
-        <Button variant="contained">New Chat</Button>
+        <Button variant="contained" onClick={handleMenuOpen}>Previous CV</Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          {sideButtons.map((sideButton, index) => (
+            <MenuItem key={index} onClick={() => handleSideButtonClick(sideButton.id)}>
+              {sideButton.company} - {sideButton.position}
+            </MenuItem>
+          ))}
+        </Menu>
+
       </section>
 
       <section className="main">
         <div className="message-container">
           {message ? (
             <p>{format_message(message)}</p>
-          ) : (
-            <p>Loading...</p>
-          )}
+          ) : 
+            <p></p>
+          }
         </div>
 
         <section className="bottom-section">
