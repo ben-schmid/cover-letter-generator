@@ -26,6 +26,7 @@ const VisuallyHiddenInput = styled('input')({
 
 
 function App() {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
   const [message, setMessage] = useState("");
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
@@ -46,6 +47,14 @@ function App() {
         setSideButtons(buttons)
       })
   },[])
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  
 
 
   const handleInputChange = (event) => {
@@ -133,7 +142,7 @@ function App() {
           <Box
             component="form"
             sx={{
-              '& > :not(style)': { m: 1, width: '24ch' },
+              '& > :not(style)': { m: 1, width: 'calc(50% - 16px)'  },
             }}
             noValidate
             autoComplete="off"
@@ -156,7 +165,7 @@ function App() {
           <Box
             component="form"
             sx={{
-              '& .MuiTextField-root': { m: 1, width: '50ch' },
+              '& .MuiTextField-root': { m: 1, width: 'calc(100% - 16px)'  },
             }}
             noValidate
             autoComplete="off"

@@ -6,14 +6,19 @@
 }
 
 body {
-  margin: 0;
-  padding: 0;
+  margin: 10px;
+  padding: 10px;
+  font-size: 6px;
+  line-height: 1.6;
 }
 
 .app {
   background-color: #fff;
   display: flex;
-  height: 100vh;
+  height: 100%;
+  justify-content: center;
+  margin: 10px;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -27,31 +32,57 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.bottom-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 20px;
 }
 
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  justify-content: flex-start;
+  padding: 10px;
+  margin-left: 244px;
+  height: calc(97vh - 40px);
 }
 
 .message-container {
-  flex: 1;
-  width: 1000px;
   
+  flex: 1;
+  width: 100%;
+  max-width: 800px;
+  padding: 5px;
   align-items: center;
-  padding: 20px;
   box-sizing: border-box;
+  overflow-y: auto;
 
 }
 
-.bottomsection {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.message-container p {
+  font-size: calc(14px); 
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+
+
+@media (max-width: 768px) {
+  .message-container {
+    padding: 10px;
+  }
+  .message-container p {
+    font-size: 14px; 
+  }
 }
