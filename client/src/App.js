@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, TextField, Stack, styled,  Menu, MenuItem} from '@mui/material';
+import { Button, IconButton, List, ListItem, Box, TextField, Stack,
+   styled, Alert, CircularProgress} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const format_message = (text) => {
@@ -26,14 +28,14 @@ const VisuallyHiddenInput = styled('input')({
 
 
 function App() {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+  const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState("");
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
   const [position, setPosition] = useState("")
-  const[company, setCompany] = useState("")
+  const [company, setCompany] = useState("")
   const [sideButtons, setSideButtons] = useState([])
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch("/initialize_coverletter_list")
@@ -48,15 +50,6 @@ function App() {
       })
   },[])
 
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  
-
-
   const handleInputChange = (event) => {
     setInput(event.target.value)
   }
@@ -70,27 +63,42 @@ function App() {
     setCompany(event.target.value)
   }
 
-  const sendData = () => {
+  const sendData = async () => {
+    if (!company || !position || !file){
+      setErrorMessage('Please fill in all required fields.')
+      return;
+        
+      
+    }
+    setIsLoading(true)
     const formData = new FormData();
     formData.append('message', input)
     formData.append('file' , file);
     formData.append('company', company)
     formData.append('position', position)
 
-    fetch('/data', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
+
+    try { 
+      const response = await fetch('/data', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
       setMessage(data.coverLetter);
-      setSideButtons(prevSideButtons => [
+      setSideButtons((prevSideButtons) => [
         ...prevSideButtons,
-        { id: data._id, company: company, position: position }
-      ]);
-    })
-    .catch(error => console.error('Error:', error));
-  };
+        { id: data._id, company, position }
+      ])
+    } catch(error) {
+      console.error('Error:', error);
+      setErrorMessage('An error occured while sending data. Please try again')
+    };
+    setIsLoading(false);
+  }
+
+  const handleDeleteCoverLetter =  async (coverLetterIdID) => {
+
+  }
 
   const handleSideButtonClick = (sideButtonId) => {
     fetch(`/previous_cl?id=${sideButtonId}`)
@@ -101,36 +109,45 @@ function App() {
       .catch(error => console.error('Error:', error));
   }
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  
-  const handleMenuClose = () => {
-    setAnchorEl(null)
-  }
-
 
 
   return (
     <div className="app">
       <section className="sidebar">
-        <Button variant="contained" onClick={handleMenuOpen}>Previous CV</Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          {sideButtons.map((sideButton, index) => (
-            <MenuItem key={index} onClick={() => handleSideButtonClick(sideButton.id)}>
-              {sideButton.company} - {sideButton.position}
-            </MenuItem>
+        <h1>Your Cover Letters</h1>
+          <List>
+          {sideButtons.map((sideButton) => (
+            <ListItem
+              key={sideButton.id}
+              secondaryAction={
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  // onClick={() =>handleDeleteCoverLEtter(sideButton.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+              }
+              >
+                <Button
+                  variant="text"
+                  onClick={()=>handleSideButtonClick(sideButton.id)}
+                  style={{ textTransform: 'none'}}
+                >
+                  {sideButton.company} - {sideButton.position}
+                </Button>
+              </ListItem>
           ))}
-        </Menu>
-
+        </List>
       </section>
 
       <section className="main">
         <div className="message-container">
+          {errorMessage &&(
+            <Alert severity="error" onClose={() =>setErrorMessage('')}>
+              {errorMessage}
+            </Alert>
+          )}
           {message ? (
             <p>{format_message(message)}</p>
           ) : 
@@ -151,12 +168,14 @@ function App() {
               id="company-name" 
               label="Company Name" 
               variant="outlined" 
+              value={company}
               onChange={handleCompanyChange}
               />
             <TextField 
               id="position-name" 
               label="Position" 
               variant="outlined"
+              value={position}
               onChange={handlePositionChange}
                />
           </Box>
@@ -165,7 +184,7 @@ function App() {
           <Box
             component="form"
             sx={{
-              '& .MuiTextField-root': { m: 1, width: 'calc(100% - 16px)'  },
+              '& .MuiTextField-root': { m: 1, width: 'calc(50% - 16px)'  },
             }}
             noValidate
             autoComplete="off"
@@ -182,19 +201,22 @@ function App() {
               />
              <Button
               component="label"
-              role={undefined}
               variant="contained"
-              tabIndex={-1}
               startIcon={<CloudUploadIcon />}
-            >
-              Upload file
-          <VisuallyHiddenInput type="file" accept="application/pdf" onChange={handleFileChange} />
-        </Button>
+              >
+                Upload file
+                <VisuallyHiddenInput
+                  type="file" 
+                  accept="application/pdf" 
+                  onChange={handleFileChange}
+                />
+              </Button>
               <Button 
                 onClick={sendData} 
                 variant="contained" 
-                endIcon={<SendIcon />}>
-                Send
+                endIcon={<SendIcon />}
+              >
+                {isLoading ? <CircularProgress />: 'Send'}
               </Button>
             </Stack>
           </Box>

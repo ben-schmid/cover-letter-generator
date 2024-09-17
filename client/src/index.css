@@ -8,7 +8,7 @@
 body {
   margin: 10px;
   padding: 10px;
-  font-size: 6px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -26,13 +26,11 @@ body {
   width: 244px;
   height: 100vh;
   padding: 10px;
-  display: flex;
   flex-direction: column;
-  align-items: center;
   position: fixed;
+  justify-content: center;
   top: 0;
   left: 0;
-  height: 100vh;
   overflow-y: auto;
 }
 
@@ -43,7 +41,7 @@ body {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  padding: 0 20px;
+  padding: 5px;
 }
 
 .main {
@@ -76,13 +74,3 @@ body {
   overflow-wrap: break-word;
 }
 
-
-
-@media (max-width: 768px) {
-  .message-container {
-    padding: 10px;
-  }
-  .message-container p {
-    font-size: 14px; 
-  }
-}
