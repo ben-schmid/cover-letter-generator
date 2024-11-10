@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-from openai_api import generate_cover_letter, read_file
-from mongodb import insert_data, get_all_cl, get_cl_by_id
+from openai_api import generate_cover_letter
+from mongodb import insert_data, get_all_cl, get_cl_by_id, delete_cl_by_id
 
 
 
@@ -37,11 +37,18 @@ def get_previous_data():
     else:
         return jsonify({'error': 'Cover letter not found'}), 404
     
+@app.route("/delete_coverletter", methods=["DELETE"])
+def delete_coverletter():
+    cl_id = request.args.get('id')
+    result = delete_cl_by_id(cl_id)
+
+    if result:
+        return jsonify({'message': 'Cover letter deleted successfully'})
+    else:
+        return jsonify({'message': 'Cover letter not found'}), 404
 
 
-@app.route("/chat", methods=["GET"])
-def chat():
-    return jsonify({"coverLetter": ""})
+    
 
 if __name__ == "__main__":
     app.run(debug=True)

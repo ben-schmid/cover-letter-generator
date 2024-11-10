@@ -21,8 +21,13 @@ def get_all_cl():
     return list(collection.find({}, {'company': 1, 'position': 1}))
 
 def get_cl_by_id(cl_id):
-    object_id = ObjectId(cl_id)
-    return collection.find_one({"_id": object_id})
+    objectId = ObjectId(cl_id)
+    return collection.find_one({"_id": objectId})
+
+def delete_cl_by_id(cl_id):
+    objectId = ObjectId(cl_id)
+    result = collection.delete_one({"_id": objectId})
+    return result.deleted_count > 0
    
 
 

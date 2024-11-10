@@ -96,7 +96,24 @@ function App() {
     setIsLoading(false);
   }
 
-  const handleDeleteCoverLetter =  async (coverLetterIdID) => {
+  const handleDeleteCoverLetter =  async (coverLetterId) => {
+    try{
+      const response = await fetch(`/delete_coverletter?id=${coverLetterId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok){
+        setSideButtons((prevSideButtons) =>
+          prevSideButtons.filter((button) => button.id !== coverLetterId)
+        );
+        setMessage("");
+      }else {
+        throw new Error('Failed to delete cover letter');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setErrorMessage('An error occurred while deleting the cover letter. Please try again.');
+    }
 
   }
 
@@ -123,7 +140,7 @@ function App() {
                 <IconButton
                   edge="end"
                   aria-label="delete"
-                  // onClick={() =>handleDeleteCoverLEtter(sideButton.id)}
+                  onClick={() =>handleDeleteCoverLetter(sideButton.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -159,7 +176,7 @@ function App() {
           <Box
             component="form"
             sx={{
-              '& > :not(style)': { m: 1, width: 'calc(50% - 16px)'  },
+              '& > :not(style)': { m: 1, width: '100%)'  },
             }}
             noValidate
             autoComplete="off"
@@ -184,7 +201,7 @@ function App() {
           <Box
             component="form"
             sx={{
-              '& .MuiTextField-root': { m: 1, width: 'calc(50% - 16px)'  },
+              '& .MuiTextField-root': { m: 1, width: '100%)'  },
             }}
             noValidate
             autoComplete="off"
@@ -198,11 +215,13 @@ function App() {
                 maxRows={4}
                 value = {input}
                 onChange={handleInputChange}
+                sx={{ minWidth: '600px' }}
               />
              <Button
               component="label"
               variant="contained"
               startIcon={<CloudUploadIcon />}
+              sx={{ maxHeight: '60px' }}
               >
                 Upload file
                 <VisuallyHiddenInput
@@ -215,6 +234,7 @@ function App() {
                 onClick={sendData} 
                 variant="contained" 
                 endIcon={<SendIcon />}
+                sx={{ maxHeight: '60px' }}
               >
                 {isLoading ? <CircularProgress />: 'Send'}
               </Button>
